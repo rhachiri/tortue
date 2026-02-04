@@ -1,0 +1,186 @@
+# Fonction qui cree une table a partir d un nombre
+def iota(n):
+    t = [0]*n
+    for i in range(0,n):
+        t[i]=i
+    return t
+    
+# Fonction qui retourne true si le nombre appartient a la table
+def contient(tab,x):
+    nombreEgale = False
+    for i in range(len(tab)):
+        if(tab[i] == x):
+            nombreEgale = True
+            return nombreEgale
+    return nombreEgale   
+       
+# Fonction qui retire un nombre d une table    
+def retirer(tab,x):
+    for i in range(len(tab)):
+        if(tab[i] == x):
+            tab.pop(i)
+            return tab
+           
+    return tab  
+        
+# Fonction qui retourne une table des nombres qui sont voisins d une case
+# sur une grille donne
+def voisins(x,y,nX,nY):
+    tailleMaxGrille = (nX * nY)-1
+    tabVoisins = []
+    
+    voisinN = y - 1
+    voisinE = x + 1
+    voisinS = y + 1
+    voisinO = x - 1
+    
+    
+    if(voisinN >= 0):
+        voisinN = x + voisinN * nX
+        tabVoisins.append(voisinN)
+        
+    if(voisinE < nX):
+        voisinE = voisinE + y * nX
+        tabVoisins.append(voisinE)
+        
+    if(voisinS < nY):
+        voisinS = x + voisinS * nX
+        tabVoisins.append(voisinS)
+        
+    if(voisinO >= 0):
+        voisinO = voisinO + y * nX
+        tabVoisins.append(voisinO)
+        
+    return tabVoisins
+
+# Fonction qui retourne une table apres avoir ajoute un element
+def ajouter(tab,x):
+    tab.append(x)
+    return tab
+
+# A partir des coordonnes d un case pour une grille donne, retourne le numero
+# du mur choisi appartenant a la case donne
+def retournerMur(x,y,nX,nY,typeMur):
+    numeroMur = 0
+    if(typeMur == "N"):
+        numeroMur = x + y * nX
+        return numeroMur
+        
+    if(typeMur == "E"):
+        numeroMur = 1 + x + y * (nX+1)
+        return numeroMur
+    if(typeMur == "S"):
+        numeroMur = x + (y+1) * nX
+        return numeroMur
+    if(typeMur == "O"):
+        numeroMur = x + y * (nX+1)
+        return numeroMur
+    return numeroMur
+
+#Fonction retourne les coordonnes d une case sur une grille apres
+# avoir parcouru tous les nombre de la grille
+def trouverCoordonnes(n,nX,nY):
+    nombreTotale = nX * nY
+    tabposition = [0,0]
+    for i in range(0,nY):
+        for j in range(0,nX):
+            if(n == retournerMur(j,i,nX,nY,"N") ):
+                tabposition[0] = j
+                tabposition[1] = i
+                return tabposition
+          
+    return tabposition
+
+# Procedure qui cree aleatoirement un laberynthe avec la taille desire
+def laby(nX,nY,largeurCase):
+    # nombre totale des murs horizontales et verticales
+    mursH = nX*(nY+1)-1
+    mursV = (nX+1)*nY-1
+    totalNumber = (nX * nY)
+    # initialisation des tables
+    tabCave = [0]
+    tabFront = []
+    # Ensemble des coordones des murs qui doivent etre retire
+    tabEnleverMursH = []
+    tabEnleverMursV = []
+    
+    # Boucle while tant que tous les cases appartiennet a tabCave
+    while len(tabCave) != totalNumber:
+        tabPointsCardinauxRandom = []
+    # obtenir l ensemble de voisins
+        for i in range(0,len(tabCave)):
+            # variable position case a modifier
+            positionX = 0
+            positionY = 0
+    
+            # variable case initial a comparer
+            nombreChercherPosition = tabCave[i]
+            tabcoordones = trouverCoordonnes(nombreChercherPosition,nX,nY)
+            x = tabcoordones[0]
+            y = tabcoordones[1]
+            # voisins pour la case initialle
+            voisinsRechercheTab = voisins(x,y,nX,nY)
+            
+            # Boucle qui va ajouter les nouveaux voisins a tabFront
+            for t in range(0,len(voisinsRechercheTab)):
+                if(contient(tabFront,voisinsRechercheTab[t]) == False):
+                    if(contient(tabCave,voisinsRechercheTab[t]) == False):
+                        tabFront.append(voisinsRechercheTab[t])
+                   
+        # On choisi un voisin aleatoire        
+        randomMultiple = len(tabFront)
+        randomNumber = int(randomMultiple*random())
+        caseAchanger = tabFront[randomNumber]
+        coordonnes = trouverCoordonnes(caseAchanger,nX,nY)
+        positionX =  coordonnes[0]
+        positionY =  coordonnes[1]
+        
+        # Boucle qui va trouver tous les points cardinaux d un voisin
+        # a partir de tabCave
+        for g in range(0,len(tabCave)):
+            caseVerifierSiVoisin = tabCave[g]
+            coordonnes = trouverCoordonnes(caseVerifierSiVoisin,nX,nY)
+            x =  coordonnes[0]
+            y =  coordonnes[1]
+            # trouver les murs a enlever selon les voisins
+            if(positionY - 1 == y and positionX == x):
+                tabPointsCardinauxRandom.append("N")
+               
+            if(x + 1 == positionX and x < nX -1 and positionY == y ):
+                tabPointsCardinauxRandom.append("O")
+                    
+            if(positionY + 1 == y and positionX == x ):
+                tabPointsCardinauxRandom.append("S")
+                        
+            if(x - 1 == positionX and x > 0 and positionY == y):
+                tabPointsCardinauxRandom.append("E")
+                            
+            
+          # enlever les murs de facon random
+        randomCardinalTotal = len(tabPointsCardinauxRandom)
+        randomNumberCardinal = int(randomCardinalTotal*random())
+        if( randomCardinalTotal == 1):
+                randomNumberCardinal = 0
+        murEnlerver = tabPointsCardinauxRandom[randomNumberCardinal]
+        murEnleverNumero = retournerMur(positionX,positionY,nX,nY,murEnlerver)
+    
+        # Placer le mur dans sa table horizontale ou verticale
+        if(murEnlerver == "N" or murEnlerver == "S"):
+            tabEnleverMursH.append(murEnleverNumero)
+        
+        if(murEnlerver == "E" or murEnlerver == "O"):
+            tabEnleverMursV.append(murEnleverNumero)   
+      
+        # Ajouter la case modifie a l ensemble cave
+        tabCave.append(caseAchanger)
+    
+        # Retirer la case modifie de l ensemble front
+        if(contient(tabFront,caseAchanger) == True):
+            print(len(tabFront))
+            tabFront = retirer(tabFront,caseAchanger)
+       
+    # Variables necessaires pour dessiner le laberynthe
+    # Ce sont elles qu on doit eliminer de la grille
+    print(tabEnleverMursH)
+    print(tabEnleverMursV)
+laby(8,4,20)
